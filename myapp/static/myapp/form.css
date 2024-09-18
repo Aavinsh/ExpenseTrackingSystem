@@ -1,0 +1,23 @@
+*{ 
+    margin-left: 15px; 
+    
+    
+}
+#chartjs{
+    height: 120px;
+    display: flex;
+    width: 100%;
+    }
+
+#exp-chart,#date-chart {
+    margin-right: 20px;
+    width: 45%;
+    height: 50px;
+}
+nav{
+    padding: 10px;
+   
+    box-shadow: 3px 3px 5px rgba(48, 51, 50, 0.3),
+              -3px -3px 5px rgba(0, 0, 0, 0.2);
+}
+

@@ -1,0 +1,225 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block body %}
+ 
+        <div>
+                Add Expenses
+        </div>
+        <form class="shadow-lg " method="post"> 
+                {% csrf_token %}
+                <div>
+                        <div>
+                                 <label>Expense Name</label>
+                        </div>
+                        <div class="border"> {{ expense_form.name }}</div>
+
+                        <div>
+                                <label>Expense Amount</label>
+                       </div>
+                       <div class="border"> {{ expense_form.amount }}</div>
+
+                       <div>
+                        <label>Expense Category</label>
+                        </div>
+                        <div class="border"> {{ expense_form.category }}</div>
+                 </div>
+                <button>Add</button>
+        </form>
+        <hr>
+        <div>Expenses</div> 
+        <table>
+                <th>Name</th> 
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Action</th>
+                
+                {% for expense in expenses %} 
+                <tr> 
+                
+                 <td>{{expense.name}}</td>
+                 <td>{{expense.amount|intcomma }}</td>
+                 <td>{{expense.category}}</td>
+                 <td>{{expense.date}}</td>
+                 <td><a href="{% url 'edit' expense.id   %}">Edit
+                         <!-- <img src="{% static 'myapp/images/edit.png' %}" alt=""> -->
+                 </a></td>
+                 <td>
+                        <form method="post" action="{% url 'delete' expense.id %}">
+                        {% csrf_token %}
+                        <button type="submit" name="delete ">Delete
+                                <!-- <img src="{% static 'myapp/images/delete.png' %}" alt=""> -->
+                        </button>
+                        </form>
+                 </td>
+                       
+                </tr>
+                {% endfor %}
+               
+        </table>
+        <span>Total {{ total_expenses.amount__sum|intcomma  }}</span>
+        <hr>
+        <div>   
+                <h1>LAST 365 DAYS</h1>
+                <p>${{yearly_sum.amount__sum|intcomma}}</p>
+
+                <h1>LAST 30 DAYS</h1>
+                <p>${{monthly_sum.amount__sum|intcomma}}</p>
+
+                <h1>LAST 7 DAYS</h1>
+                <p>${{weekly_sum.amount__sum|intcomma}}</p>
+        </div>
+        <hr>
+        <div id="dis-sum">
+               <span>Past 30 days sum</span> 
+               <div id="30-day-table">
+                        {% for daily_sums in daily_sum %}
+                        <div>
+                                <span>{{daily_sums.date}}</span>
+                         </div>
+
+                         <div>
+                                <span>${{daily_sums.sum}}</span>
+                         </div>
+                         {% endfor %}
+
+
+               </div>
+               
+               <span >Categorical sum</span> 
+               <div id="cat-sum-table">
+                        {% for categorical_sums in categorical_sum %}
+                        <div>
+                                <span>{{categorical_sums.category}}</span>
+                         </div>
+
+                         <div>
+                                <span>${{categorical_sums.sum}}</span>
+                         </div>
+                         {% endfor %}
+
+
+               </div>
+               <hr>
+        </div>
+
+        <div id="chartjs">
+                <div id="exp-chart">
+                        <h1>Expenses  spread across categories </h1>
+                        <canvas id="myChart"></canvas>
+                 </div>
+
+                <div id="date-chart">
+                        <h1>Daily Expenses sum </h1>
+                        <canvas id="myChart1"></canvas>
+                 </div>
+         </div>
+
+         
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.min.js"></script>
+        <script>
+                const cats=[]
+                const cat_sums=[]
+                const date=[]
+                const date_sums=[]
+
+                const catSumDIv= document.getElementById('cat-sum-table').getElementsByTagName('div')
+                const dateSumDIv= document.getElementById('30-day-table').getElementsByTagName('div')
+
+                for(i=0;i<catSumDIv.length;i++){
+                        if(i%2==1){
+                                cat_sums.push(catSumDIv[i].innerText.replace("$",""))
+                        }else{
+                                cats.push(catSumDIv[i].innerText)
+                        }
+                }
+
+                for(i=0;i<dateSumDIv.length;i++){
+                        if(i%2==1){
+                                date_sums.push(dateSumDIv[i].innerText.replace("$",""))
+                        }else{
+                                date.push(dateSumDIv[i].innerText)
+                        }
+                }
+                console.log(cat_sums)
+                console.log(date_sums)
+
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                        labels:  cats ,
+                        datasets: [{
+                        label: 'Expenses across categories ',
+                        data: cat_sums,
+                        backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                        }]
+                },
+                options: {
+                        scales: {
+                        y: {
+                                beginAtZero: true
+                        }
+                        }
+                }
+                });
+
+
+
+                var ctx1 = document.getElementById('myChart1').getContext('2d');
+                var myChart1 = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                        labels:  date ,
+                        datasets: [{
+                        label: 'Daily expenses ',
+                        data: date_sums,
+                        backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                        }]
+                },
+                options: {
+                        scales: {
+                        y: {
+                                beginAtZero: true
+                        }
+                        }
+                }
+                });
+ 
+
+        </script>
+        
+{% endblock %}

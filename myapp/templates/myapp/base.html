@@ -1,0 +1,52 @@
+{% load static %}
+
+{% comment %} {% block scripts %}
+    <script src="{% static 'myapp/js/script.js' %}" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock scripts %} {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'myapp/form.css' %}">
+    <link rel="stylesheet" href="{% static 'myapp/nav.css' %}">
+    {% comment %} <script src="{% static 'myapp/js/script.js' %}"></script> {% endcomment %}
+    <title>Document</title>
+</head>
+<body>
+
+
+
+    <nav class="navbar">
+        <div class="logo">ExpensesTracker</div>
+         
+        <ul class="nav-links">
+          {% if user.is_authenticated %}
+           Logged in as:<b>{{ user }}</b>  
+          <li><a href="{% url 'logout' %}">Logout</a></li>
+          {% else %}
+          <li><a href="{% url 'login'%}">Login</a></li>
+          <li><a href="{% url 'register'%}">Register</a></li>
+          {% endif %}
+        </ul>
+        <div class="hamburger">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+      </nav>
+    {% comment %} <div>
+        <nav>
+            <span>TrackMe</span>
+            <a href="#">Home</a>
+            <a href="#">Aboutus</a>
+            <a href="#">Logout</a>
+        </nav>
+        <hr>
+    </div> {% endcomment %}
+    {% block body %}
+    {% endblock %}
+</body>
+</html>
